@@ -40,43 +40,38 @@
 
     <a-marker type="pattern" url="1-building.patt" id="m1">
       <a-entity position="0 0 0" rotation="-90 0 0">
-        <a-box src="#v1" width="3" height="1.7" depth="0.5" position="0 0 0.25"
-               material="shader: flat; side: double; color: #ffffff; opacity: 1;"></a-box>
+        <a-box src="#v1" width="3" height="1.7" depth="0.15" position="0 0 0"
+               material="shader: flat; side: double; color: #ffffff;"></a-box>
       </a-entity>
     </a-marker>
-
     <a-marker type="pattern" url="2-bridge.patt" id="m2">
       <a-entity position="0 0 0" rotation="-90 0 0">
-        <a-box src="#v2" width="3" height="1.7" depth="0.5" position="0 0 0.25"
-               material="shader: flat; side: double; color: #ffffff; opacity: 1;"></a-box>
+        <a-box src="#v2" width="3" height="1.7" depth="0.15" position="0 0 0"
+               material="shader: flat; side: double; color: #ffffff;"></a-box>
       </a-entity>
     </a-marker>
-
     <a-marker type="pattern" url="3-electric.patt" id="m3">
       <a-entity position="0 0 0" rotation="-90 0 0">
-        <a-box src="#v3" width="3" height="1.7" depth="0.5" position="0 0 0.25"
-               material="shader: flat; side: double; color: #ffffff; opacity: 1;"></a-box>
+        <a-box src="#v3" width="3" height="1.7" depth="0.15" position="0 0 0"
+               material="shader: flat; side: double; color: #ffffff;"></a-box>
       </a-entity>
     </a-marker>
-
     <a-marker type="pattern" url="4-robot.patt" id="m4">
       <a-entity position="0 0 0" rotation="-90 0 0">
-        <a-box src="#v4" width="3" height="1.7" depth="0.5" position="0 0 0.25"
-               material="shader: flat; side: double; color: #ffffff; opacity: 1;"></a-box>
+        <a-box src="#v4" width="3" height="1.7" depth="0.15" position="0 0 0"
+               material="shader: flat; side: double; color: #ffffff;"></a-box>
       </a-entity>
     </a-marker>
-
     <a-marker type="pattern" url="5-vehicles.patt" id="m5">
       <a-entity position="0 0 0" rotation="-90 0 0">
-        <a-box src="#v5" width="3" height="1.7" depth="0.5" position="0 0 0.25"
-               material="shader: flat; side: double; color: #ffffff; opacity: 1;"></a-box>
+        <a-box src="#v5" width="3" height="1.7" depth="0.15" position="0 0 0"
+               material="shader: flat; side: double; color: #ffffff;"></a-box>
       </a-entity>
     </a-marker>
-
     <a-marker type="pattern" url="6-mine.patt" id="m6">
       <a-entity position="0 0 0" rotation="-90 0 0">
-        <a-box src="#v6" width="3" height="1.7" depth="0.5" position="0 0 0.25"
-               material="shader: flat; side: double; color: #ffffff; opacity: 1;"></a-box>
+        <a-box src="#v6" width="3" height="1.7" depth="0.15" position="0 0 0"
+               material="shader: flat; side: double; color: #ffffff;"></a-box>
       </a-entity>
     </a-marker>
 
@@ -100,7 +95,9 @@
 
     function stopVideo(videoId) {
       var v = document.getElementById(videoId);
-      if (v) { try { v.pause(); v.currentTime = 0; } catch(e) {} }
+      if (v) {
+        try { v.pause(); v.currentTime = 0; } catch(e) {}
+      }
     }
 
     function stopAllExcept(exceptId) {
