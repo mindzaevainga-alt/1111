@@ -68,47 +68,19 @@
   <video id="v6" class="ar-video" src="6-mine.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
 
   <script>
-    // ============================================================
-    // ФУНКЦИЯ ПОЛНОЙ ОСТАНОВКИ ВСЕХ ВИДЕО
-    // ============================================================
-    function stopAllVideos() {
-      for (var i = 1; i <= 6; i++) {
-        var v = document.getElementById('v' + i);
-        if (v) {
-          try {
-            v.pause();
-            v.currentTime = 0;
-            v.muted = true;
-            v.volume = 0;
-          } catch (e) { console.log('stop err:', e); }
-        }
-      }
-    }
-
-    // ============================================================
-    // КНОПКА ВЫЙТИ — останавливаем всё и уходим
-    // ============================================================
+    // === Кнопка «Выйти» — просто переход, без остановки (как в рабочей версии) ===
     document.getElementById('backBtn').onclick = function() {
-      stopAllVideos();
-      // Дадим браузеру время применить остановку
-      setTimeout(function() {
-        window.location.replace('index.html');
-      }, 100);
+      window.location.replace('index.html');
     };
 
-    // ============================================================
-    // ЗВУК ВКЛЮЧАЕТСЯ ПО ПЕРВОМУ КАСАНИЮ ЭКРАНА
-    // ============================================================
+    // === Звук по первому касанию ===
     var soundEnabled = false;
     function enableSound() {
       if (soundEnabled) return;
       soundEnabled = true;
       for (var i = 1; i <= 6; i++) {
         var v = document.getElementById('v' + i);
-        if (v) {
-          v.muted = false;
-          v.volume = 1.0;
-        }
+        if (v) { v.muted = false; v.volume = 1.0; }
       }
       var hint = document.getElementById('tapHint');
       if (hint) hint.style.display = 'none';
@@ -116,9 +88,7 @@
     document.body.addEventListener('touchstart', enableSound, { once: true });
     document.body.addEventListener('click', enableSound, { once: true });
 
-    // ============================================================
-    // РАСТЯГИВАЕМ ВИДЕОФОН КАМЕРЫ
-    // ============================================================
+    // === Растягиваем видеофон камеры ===
     function fixARVideo() {
       document.querySelectorAll('video').forEach(function(v) {
         if (v.id && /^v\d$/.test(v.id)) {
@@ -152,29 +122,13 @@
     window.addEventListener('load', fixARVideo);
     window.addEventListener('resize', fixARVideo);
 
-    // ============================================================
-    // СТРАХОВКИ: ОСТАНОВКА ВИДЕО ПРИ УХОДЕ, СВОРАЧИВАНИИ, СМЕНЕ ВКЛАДКИ
-    // ============================================================
-
-    // 1. При попытке закрыть/обновить страницу
-    window.addEventListener('beforeunload', stopAllVideos);
-
-    // 2. При уходе со страницы (мобильные браузеры)
-    window.addEventListener('pagehide', stopAllVideos);
-
-    // 3. При сворачивании браузера или переходе на другую вкладку
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden) {
-        stopAllVideos();
+    // === Единственная страховка: остановка при уходе со страницы ===
+    window.addEventListener('pagehide', function() {
+      for (var i = 1; i <= 6; i++) {
+        var v = document.getElementById('v' + i);
+        if (v) { try { v.pause(); } catch(e){} }
       }
     });
-
-    // 4. При потере фокуса окна (переключение приложений)
-    window.addEventListener('blur', stopAllVideos);
-
-    // 5. При нажатии системной кнопки «Назад»
-    window.addEventListener('popstate', stopAllVideos);
-
   </script>
 </body>
 </html>
