@@ -39,22 +39,40 @@
     style="width:100%; height:100%; background: transparent;">
 
     <a-marker type="pattern" url="1-building.patt" id="m1">
-      <a-video src="#v1" position="0 0 0" width="3" height="1.7" rotation="-90 0 0"></a-video>
+      <a-entity position="0 0 0" rotation="-90 0 0">
+        <a-plane width="3.2" height="1.9" color="#4fc3f7" position="0 0 -0.05" material="shader: flat;"></a-plane>
+        <a-video src="#v1" position="0 0 0.15" width="3" height="1.7"></a-video>
+      </a-entity>
     </a-marker>
     <a-marker type="pattern" url="2-bridge.patt" id="m2">
-      <a-video src="#v2" position="0 0 0" width="3" height="1.7" rotation="-90 0 0"></a-video>
+      <a-entity position="0 0 0" rotation="-90 0 0">
+        <a-plane width="3.2" height="1.9" color="#4fc3f7" position="0 0 -0.05" material="shader: flat;"></a-plane>
+        <a-video src="#v2" position="0 0 0.15" width="3" height="1.7"></a-video>
+      </a-entity>
     </a-marker>
     <a-marker type="pattern" url="3-electric.patt" id="m3">
-      <a-video src="#v3" position="0 0 0" width="3" height="1.7" rotation="-90 0 0"></a-video>
+      <a-entity position="0 0 0" rotation="-90 0 0">
+        <a-plane width="3.2" height="1.9" color="#4fc3f7" position="0 0 -0.05" material="shader: flat;"></a-plane>
+        <a-video src="#v3" position="0 0 0.15" width="3" height="1.7"></a-video>
+      </a-entity>
     </a-marker>
     <a-marker type="pattern" url="4-robot.patt" id="m4">
-      <a-video src="#v4" position="0 0 0" width="3" height="1.7" rotation="-90 0 0"></a-video>
+      <a-entity position="0 0 0" rotation="-90 0 0">
+        <a-plane width="3.2" height="1.9" color="#4fc3f7" position="0 0 -0.05" material="shader: flat;"></a-plane>
+        <a-video src="#v4" position="0 0 0.15" width="3" height="1.7"></a-video>
+      </a-entity>
     </a-marker>
     <a-marker type="pattern" url="5-vehicles.patt" id="m5">
-      <a-video src="#v5" position="0 0 0" width="3" height="1.7" rotation="-90 0 0"></a-video>
+      <a-entity position="0 0 0" rotation="-90 0 0">
+        <a-plane width="3.2" height="1.9" color="#4fc3f7" position="0 0 -0.05" material="shader: flat;"></a-plane>
+        <a-video src="#v5" position="0 0 0.15" width="3" height="1.7"></a-video>
+      </a-entity>
     </a-marker>
     <a-marker type="pattern" url="6-mine.patt" id="m6">
-      <a-video src="#v6" position="0 0 0" width="3" height="1.7" rotation="-90 0 0"></a-video>
+      <a-entity position="0 0 0" rotation="-90 0 0">
+        <a-plane width="3.2" height="1.9" color="#4fc3f7" position="0 0 -0.05" material="shader: flat;"></a-plane>
+        <a-video src="#v6" position="0 0 0.15" width="3" height="1.7"></a-video>
+      </a-entity>
     </a-marker>
 
     <a-entity camera></a-entity>
@@ -68,27 +86,17 @@
   <video id="v6" class="ar-video" src="6-mine.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
 
   <script>
-    // Карта: id маркера → id видео
     var markerToVideo = {
-      'm1': 'v1',
-      'm2': 'v2',
-      'm3': 'v3',
-      'm4': 'v4',
-      'm5': 'v5',
-      'm6': 'v6'
+      'm1': 'v1', 'm2': 'v2', 'm3': 'v3',
+      'm4': 'v4', 'm5': 'v5', 'm6': 'v6'
     };
 
-    // === ЕДИНСТВЕННОЕ АКТИВНОЕ ВИДЕО ===
     var currentVideoId = null;
+    var lostTimers = {}; // таймеры "отложенной остановки"
 
     function stopVideo(videoId) {
       var v = document.getElementById(videoId);
-      if (v) {
-        try {
-          v.pause();
-          v.currentTime = 0;
-        } catch(e) {}
-      }
+      if (v) { try { v.pause(); } catch(e) {} }
     }
 
     function stopAllExcept(exceptId) {
@@ -98,33 +106,48 @@
       }
     }
 
-    // === ВЕШАЕМ СОБЫТИЯ НА КАЖДЫЙ МАРКЕР ===
     Object.keys(markerToVideo).forEach(function(markerId) {
       var marker = document.getElementById(markerId);
       var videoId = markerToVideo[markerId];
       if (!marker) return;
 
       marker.addEventListener('markerFound', function() {
-        // Останавливаем все остальные видео
-        stopAllExcept(videoId);
-        
-        // Запускаем нужное видео
+        // Если была запланирована остановка — отменяем
+        if (lostTimers[videoId]) {
+          clearTimeout(lostTimers[videoId]);
+          lostTimers[videoId] = null;
+        }
+
+        // Если это видео уже играет — не трогаем его
+        if (currentVideoId === videoId) return;
+
+        // Останавливаем предыдущее видео (если было)
+        if (currentVideoId && currentVideoId !== videoId) {
+          stopVideo(currentVideoId);
+        }
+
+        // Запускаем новое видео
         var v = document.getElementById(videoId);
         if (v) {
-          v.currentTime = 0;
-          v.play().catch(function(e){ console.log('play ' + videoId + ':', e); });
+          if (v.paused) {
+            v.play().catch(function(e){ console.log('play ' + videoId + ':', e); });
+          }
           currentVideoId = videoId;
         }
       });
 
       marker.addEventListener('markerLost', function() {
-        // Останавливаем это видео, когда маркер ушёл
-        stopVideo(videoId);
-        if (currentVideoId === videoId) currentVideoId = null;
+        // НЕ останавливаем сразу — ждём 2 секунды
+        // Если за это время маркер вернётся — видео продолжит играть
+        if (lostTimers[videoId]) clearTimeout(lostTimers[videoId]);
+        lostTimers[videoId] = setTimeout(function() {
+          stopVideo(videoId);
+          if (currentVideoId === videoId) currentVideoId = null;
+          lostTimers[videoId] = null;
+        }, 2000); // 2 секунды терпения
       });
     });
 
-    // === КНОПКА ВЫЙТИ — стоп всё и уходим ===
     document.getElementById('backBtn').onclick = function() {
       stopAllExcept(null);
       setTimeout(function() {
@@ -132,7 +155,6 @@
       }, 100);
     };
 
-    // === ЗВУК ПО КАСАНИЮ ===
     var soundEnabled = false;
     function enableSound() {
       if (soundEnabled) return;
@@ -147,7 +169,6 @@
     document.body.addEventListener('touchstart', enableSound, { once: true });
     document.body.addEventListener('click', enableSound, { once: true });
 
-    // === РАСТЯГИВАЕМ ВИДЕОФОН КАМЕРЫ ===
     function fixARVideo() {
       document.querySelectorAll('video').forEach(function(v) {
         if (v.id && /^v\d$/.test(v.id)) return;
@@ -176,7 +197,6 @@
     window.addEventListener('load', fixARVideo);
     window.addEventListener('resize', fixARVideo);
 
-    // === При уходе со страницы — стоп всё ===
     window.addEventListener('pagehide', function() {
       stopAllExcept(null);
     });
